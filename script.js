@@ -32,17 +32,37 @@ function analyse() {
         printStats(lines, 0, 0, parasWithExtraSpace, parasLines);
         return;
     }
+    
+    var maxlinelen = 94;
+    if($("teacher").checked) maxlinelen = 80;
+    
     for(var i=0; i<paras.length; i++) {
         if(paras[i][paras[i].length-1]==' ') parasWithExtraSpace.push(i+1);
         do {
-            if(paras[i][0]==' ') paras[i]=paras[i].substring(1); //remove preceding space
-            line=paras[i].substring(0, paras[i].length>94?94:paras[i].length); //extract line of 94 chars or fewer
-            var lastidx=line.lastIndexOf(' ');
-            if(lastidx>=0) { //if there is a space in line
-                if(line.length<94) lastidx=line.length; //if it can contain whole line
-            } else lastidx=line.length;
-            if(paras[i][94]==' ') lastidx=94; //if extracted right before a space
-            paras[i] = line.substring(lastidx+1)+paras[i].substring(94); //remove extracted string (up to lastidx) from paras
+            if(paras[i][0]==' ') {
+                paras[i] = paras[i].substring(1); //remove preceding space
+            }
+
+            /* extract line of maxlinelen chars or fewer */
+            if(paras[i].length > maxlinelen) {
+                line = paras[i].substring(0, maxlinelen);
+            } else {
+                line = paras[i].substring(0, paras[i].length);
+            }
+            
+            var lastidx = line.lastIndexOf(' ');
+            if(lastidx >= 0) { //if there is a space in line
+                if(line.length < maxlinelen) {
+                    lastidx = line.length; //if it can contain whole line
+                }
+            } else {
+                lastidx = line.length; //cutoff line if line has maxlinelen
+            }                          // chars without spaces
+            
+            if(paras[i][maxlinelen] == ' ') { //if extracted right before a space
+                lastidx = maxlinelen;
+            }
+            paras[i] = line.substring(lastidx+1)+paras[i].substring(maxlinelen); //remove extracted string (up to lastidx) from paras
             line=line.substring(0, lastidx);
             lines.push(line);
         } while(paras[i]!="");
